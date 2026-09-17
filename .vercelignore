@@ -1,0 +1,4 @@
+doc
+.localdb
+supabase/seed.sql
+scripts/emails.local.json
