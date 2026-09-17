@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { currentMember } from "@/lib/session";
+import { addFeedback, updateFeedbackStatus, removeFeedback } from "@/lib/feedback-store";
 
 function str(fd: FormData, key: string) {
   const v = fd.get(key);
@@ -250,11 +251,12 @@ export async function deleteMeeting(fd: FormData) {
 
 /* ══════════ 베타 피드백 ══════════ */
 
+// 저장은 feedback-store 가 맡는다 — Blob 토큰이 있으면 Blob, 없으면 DB.
 export async function sendFeedback(fd: FormData) {
   const m = await me();
   const body = str(fd, "body");
   if (!body) return;
-  await db().from("feedback").insert({
+  await addFeedback({
     member_id: m.id,
     kind: str(fd, "kind") || "불편",
     body,
@@ -270,7 +272,7 @@ export async function setFeedbackStatus(fd: FormData) {
   const id = str(fd, "id");
   const status = str(fd, "status");
   if (!id || !status) return;
-  await db().from("feedback").update({ status }).eq("id", id);
+  await updateFeedbackStatus(id, status);
   revalidatePath("/feedback");
 }
 
@@ -279,9 +281,7 @@ export async function deleteFeedback(fd: FormData) {
   const id = str(fd, "id");
   if (!id) return;
   // 본인 것이거나 관리자만 지울 수 있다
-  let q = db().from("feedback").delete().eq("id", id);
-  if (!m.is_admin) q = q.eq("member_id", m.id);
-  await q;
+  await removeFeedback(id, m.is_admin ? undefined : m.id);
   revalidatePath("/feedback");
 }
 

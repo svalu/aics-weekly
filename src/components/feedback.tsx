@@ -138,7 +138,7 @@ export function FeedbackButton() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="pressable pointer-events-auto inline-flex items-center gap-1.5 rounded-pill bg-brand-500 px-3 py-1.5 text-[12px] font-bold text-white shadow-card hover:bg-brand-600"
+        className="pressable pointer-events-auto inline-flex h-8 items-center gap-1.5 rounded-pill bg-brand-500 px-3 text-[12px] font-bold text-white shadow-card hover:bg-brand-600"
         title="베타 피드백 남기기"
       >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">

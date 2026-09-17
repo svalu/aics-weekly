@@ -2,7 +2,7 @@
  * 앱 버전. 화면 오른쪽 아래에 표시된다.
  * 기능을 추가하거나 고칠 때 여기만 올리면 된다.
  */
-export const APP_VERSION = "0.4";
+export const APP_VERSION = "0.5";
 
 /**
  * 1.0 전까지는 베타다. 베타에서만 보이는 것(하단 피드백 버튼 등)은
@@ -10,8 +10,29 @@ export const APP_VERSION = "0.4";
  */
 export const IS_BETA = APP_VERSION.startsWith("0.");
 
+/**
+ * 배지를 눌렀을 때 보이는 "이 앱은 어떻게 만들어졌나".
+ * 베타 참여자가 궁금해할 만한 것만 짧게. 기술 용어는 한 줄 설명을 붙인다.
+ */
+export const ABOUT: { label: string; value: string; note?: string }[] = [
+  { label: "무엇", value: "엑셀로 돌리던 팀 주간보고를 웹으로 옮긴 것", note: "각자 다른 양식 대신 정해진 칸에 적고, 팀 전체를 한 화면에서 본다" },
+  { label: "만든 방법", value: "Claude Code 와 함께 하루 만에", note: "설계·코드·데이터 정리를 AI 와 대화하며 진행했다" },
+  { label: "화면", value: "Next.js 16 · React 19 · Tailwind", note: "브라우저에서 돌아가는 웹앱. 설치 없이 주소만 열면 된다" },
+  { label: "데이터", value: "Postgres (PGlite) — 베타는 메모리", note: "서버가 재시작되면 데모 데이터로 돌아간다. 실제 운영 땐 Supabase 로 바꾼다" },
+  { label: "피드백 저장", value: "Vercel Blob (비공개)", note: "여러분이 남긴 의견만은 지워지지 않고 남는다" },
+  { label: "배포", value: "Vercel · 서울 리전", note: "저장하면 몇 초 안에 반영된다" },
+  { label: "로그인", value: "이름 또는 이메일, 비밀번호 없음", note: "사내 테스트용이라 인증을 두지 않았다. 링크는 외부에 공유하지 마세요" },
+  { label: "데모 데이터", value: "팀원 이름만 실제, 나머지는 전부 가짜", note: "고객사·금액·미팅 내용은 지어낸 것이다" },
+  { label: "코드", value: "github.com/svalu/aics-weekly", note: "공개 저장소. 실제 데이터는 들어 있지 않다" },
+];
+
 /** 버전을 올릴 때마다 한 줄씩 위에 추가 */
 export const CHANGELOG: { version: string; date: string; note: string }[] = [
+  {
+    version: "0.5",
+    date: "2026-09-17",
+    note: "이름으로도 로그인. 피드백을 Vercel Blob 에 영구 저장. 배지를 누르면 개발 환경 소개.",
+  },
   {
     version: "0.4",
     date: "2026-09-17",

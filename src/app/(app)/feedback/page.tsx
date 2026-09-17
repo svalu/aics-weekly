@@ -1,8 +1,9 @@
 import { db } from "@/lib/db";
 import { requireMember } from "@/lib/session";
 import { setFeedbackStatus, deleteFeedback } from "@/lib/actions";
+import { listFeedback, usingBlob } from "@/lib/feedback-store";
 import { fmtDate } from "@/lib/week";
-import { FEEDBACK_STATUSES, type Feedback, type Member } from "@/lib/types";
+import { FEEDBACK_STATUSES, type Member } from "@/lib/types";
 import { Avatar, PageHead, Card, Empty, StatusDot } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
@@ -10,20 +11,15 @@ export const dynamic = "force-dynamic";
 /**
  * 베타 피드백 모아 보기.
  * 관리자는 전부, 나머지는 자기가 남긴 것만 본다.
+ * 저장소는 feedback-store 가 고른다(Blob 또는 DB).
  */
 export default async function FeedbackPage() {
   const me = await requireMember();
-  const sb = db();
 
-  let q = sb.from("feedback").select("*").order("created_at", { ascending: false });
-  if (!me.is_admin) q = q.eq("member_id", me.id);
-
-  const [{ data: rows }, { data: memberRows }] = await Promise.all([
-    q,
-    sb.from("members").select("*"),
+  const [list, { data: memberRows }] = await Promise.all([
+    listFeedback(me.is_admin ? {} : { memberId: me.id }),
+    db().from("members").select("*"),
   ]);
-
-  const list = (rows ?? []) as Feedback[];
   const nameOf = new Map(((memberRows ?? []) as Member[]).map((m) => [m.id, m.name]));
 
   const fresh = list.filter((f) => f.status === "새 의견").length;
@@ -36,9 +32,10 @@ export default async function FeedbackPage() {
       <PageHead
         title="베타 피드백"
         sub={
-          me.is_admin
+          (me.is_admin
             ? `${list.length}건 · 아직 안 본 것 ${fresh}건`
-            : `${me.name}님이 남긴 의견 ${list.length}건`
+            : `${me.name}님이 남긴 의견 ${list.length}건`) +
+          (usingBlob() ? " · 영구 저장(Blob)" : " · DB 저장")
         }
       />
 

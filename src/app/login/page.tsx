@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { currentMember, findByEmail, setSession } from "@/lib/session";
+import { currentMember, findByLogin, setSession } from "@/lib/session";
 import { isConfigured, db } from "@/lib/db";
 import { Logo } from "@/components/icons";
 import { Avatar } from "@/components/ui";
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 async function signIn(formData: FormData) {
   "use server";
   const email = String(formData.get("email") ?? "");
-  const member = await findByEmail(email);
+  const member = await findByLogin(email);
   if (!member) {
     redirect(`/login?e=${encodeURIComponent(email)}`);
   }
@@ -56,23 +56,23 @@ export default async function LoginPage({
             AICS Weekly
           </h1>
           <p className="mt-2 text-[15px] text-ink-mute">
-            회사 이메일만 넣으면 바로 들어갑니다. 비밀번호 없어요.
+            이름이나 회사 이메일만 넣으면 바로 들어갑니다. 비밀번호 없어요.
           </p>
 
           <form action={signIn} className="mt-7 space-y-3">
             <div>
               <label className="label" htmlFor="email">
-                이메일
+                이메일 또는 이름
               </label>
               <input
                 id="email"
                 name="email"
-                type="email"
+                type="text"
                 required
                 autoFocus
-                autoComplete="email"
+                autoComplete="username"
                 defaultValue={sp.e ?? ""}
-                placeholder={`name@${sample}`}
+                placeholder={`홍길동  또는  name@${sample}`}
                 className="field"
               />
               {domains.length ? (
@@ -87,13 +87,16 @@ export default async function LoginPage({
             </div>
             {sp.e ? (
               <p className="rounded-2xl bg-[#FFE4E4] px-4 py-3 text-[13px] text-danger">
-                <b>{sp.e}</b> 은(는) 이 서버에 등록되어 있지 않습니다.
-                {domains.length ? (
+                <b>{sp.e}</b> 은(는) 이 서버에서 찾지 못했습니다.
+                {sp.e.includes("@") && domains.length ? (
                   <>
                     {" "}여기 등록된 주소는 {domains.map((d) => `@${d}`).join(" · ")} 입니다.
+                    이름으로 넣어 보세요.
                   </>
-                ) : null}{" "}
-                오른쪽 목록에서 본인을 고르거나 관리자에게 등록을 요청하세요.
+                ) : (
+                  <> 이름이 같은 사람이 둘 이상이면 이메일로 넣어 주세요.</>
+                )}{" "}
+                오른쪽 목록에서 본인을 고르는 게 가장 빠릅니다.
               </p>
             ) : null}
             {sp.off ? (

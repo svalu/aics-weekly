@@ -41,14 +41,41 @@ export async function clearSession() {
   jar.delete(COOKIE);
 }
 
-/** 이메일로 팀원을 찾는다. 대소문자·공백 무시. */
-export async function findByEmail(email: string): Promise<Member | null> {
-  const clean = email.trim().toLowerCase();
+/**
+ * 이메일 또는 이름으로 팀원을 찾는다. 대소문자·공백 무시.
+ *
+ *   "@" 가 있으면  → 이메일 정확히 일치
+ *   없으면         → 이름 정확히 일치, 아니면 이메일 앞부분(local-part) 일치
+ *
+ * 이름이 같은 사람이 둘 이상이면 고르게 하지 않고 null 을 준다 —
+ * 잘못된 사람으로 들어가는 것보다 한 번 더 묻는 게 낫다.
+ */
+export async function findByLogin(input: string): Promise<Member | null> {
+  const clean = input.trim();
   if (!clean) return null;
-  const { data } = await db()
+  const sb = db();
+
+  if (clean.includes("@")) {
+    const { data } = await sb
+      .from("members")
+      .select("*")
+      .ilike("email", clean.toLowerCase())
+      .maybeSingle();
+    return (data as Member) ?? null;
+  }
+
+  const { data: byName } = await sb.from("members").select("*").ilike("name", clean);
+  const names = (byName ?? []) as Member[];
+  if (names.length === 1) return names[0];
+  if (names.length > 1) return null;
+
+  const { data: byLocal } = await sb
     .from("members")
     .select("*")
-    .ilike("email", clean)
-    .maybeSingle();
-  return (data as Member) ?? null;
+    .ilike("email", `${clean.toLowerCase()}@%`);
+  const locals = (byLocal ?? []) as Member[];
+  return locals.length === 1 ? locals[0] : null;
 }
+
+/** @deprecated findByLogin 을 쓴다. 이름 호환용. */
+export const findByEmail = findByLogin;
