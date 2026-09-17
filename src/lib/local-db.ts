@@ -1,15 +1,19 @@
 import fs from "node:fs";
 import path from "node:path";
-import { PGlite } from "@electric-sql/pglite";
+import type { PGlite } from "@electric-sql/pglite";
 
 /**
- * 로컬 미리보기 모드.
+ * Supabase 없이 도는 모드.
  *
- * Supabase 환경변수가 없고 LOCAL_DB=1 이면, 진짜 Postgres(PGlite · WASM)를
- * .localdb/ 에 띄우고 schema.sql + seed.sql 을 한 번 실행한다.
+ * Supabase 환경변수가 없고 LOCAL_DB=1 이면 진짜 Postgres(PGlite · WASM)를
+ * 프로세스 안에 띄우고 schema.sql + seed 를 한 번 실행한다.
  * supabase-js 의 쿼리 빌더 중 이 앱이 쓰는 부분만 흉내 낸다.
  *
- * 배포할 때는 쓰지 않는다. 세팅 전에 화면을 굴려보기 위한 것.
+ *   내 PC     — .localdb/ 에 저장. 껐다 켜도 남는다.
+ *   서버리스  — 쓰기 가능한 디스크가 없으니 메모리에. 인스턴스가
+ *              재활용되면 데모 데이터로 돌아간다. 테스트 배포용이다.
+ *
+ * 실제로 팀이 쓸 때는 Supabase 환경변수를 넣어 이 경로를 타지 않게 한다.
  */
 
 type Row = Record<string, unknown>;
@@ -24,8 +28,19 @@ const SHARED = Symbol.for("aics.local-db");
 type Global = typeof globalThis & { [SHARED]?: Promise<PGlite> | null };
 const g = globalThis as Global;
 
+/** 디스크에 쓸 수 있는 환경인지. 서버리스에서는 보통 못 쓴다. */
+function dataDir(): string | undefined {
+  if (process.env.LOCAL_DB_MEMORY === "1") return undefined;
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) return undefined;
+  return path.join(process.cwd(), ".localdb");
+}
+
 async function boot(): Promise<PGlite> {
-  const pg = new PGlite(path.join(process.cwd(), ".localdb"));
+  // 프로덕션(Supabase)에서는 이 경로를 타지 않으므로 필요할 때만 불러온다
+  const { PGlite: PG } = await import("@electric-sql/pglite");
+
+  const dir = dataDir();
+  const pg = dir ? new PG(dir) : new PG();
   await pg.waitReady;
 
   // 디렉터리가 있어도 앞선 시도가 중간에 깨졌을 수 있으니 테이블 유무로 판단한다
@@ -41,9 +56,12 @@ async function boot(): Promise<PGlite> {
 
   for (const file of ["schema.sql", seed]) {
     const p = path.join(root, file);
-    if (!fs.existsSync(p)) continue;
+    if (!fs.existsSync(p)) {
+      console.warn(`[local-db] ${file} 을 찾지 못했습니다: ${p}`);
+      continue;
+    }
     await pg.exec(fs.readFileSync(p, "utf8"));
-    console.log(`[local-db] ${file} 적용 완료`);
+    console.log(`[local-db] ${file} 적용 완료 (${dir ? dir : "메모리"})`);
   }
   return pg;
 }
