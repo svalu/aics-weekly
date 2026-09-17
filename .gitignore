@@ -1,0 +1,28 @@
+node_modules
+.next
+out
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+
+# 환경변수 / 키
+.env
+.env*.local
+
+# 로컬 미리보기 DB
+.localdb
+
+# ─────────────────────────────────────────────────────────
+#  실제 회사 데이터는 저장소에 올리지 않는다.
+#  공개되는 건 supabase/seed.demo.sql (전부 지어낸 데이터)뿐이다.
+# ─────────────────────────────────────────────────────────
+
+# 원본 엑셀 (고객사 · 금액 · 담당자 실명)
+doc/
+
+# 엑셀에서 뽑은 실제 시드
+supabase/seed.sql
+
+# 실제 이메일 주소 매핑
+scripts/emails.local.json
