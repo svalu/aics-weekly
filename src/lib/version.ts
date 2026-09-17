@@ -2,10 +2,20 @@
  * 앱 버전. 화면 오른쪽 아래에 표시된다.
  * 기능을 추가하거나 고칠 때 여기만 올리면 된다.
  */
-export const APP_VERSION = "0.2";
+export const APP_VERSION = "0.3";
 
 /** 버전을 올릴 때마다 한 줄씩 위에 추가 */
 export const CHANGELOG: { version: string; date: string; note: string }[] = [
+  {
+    version: "0.3",
+    date: "2026-09-17",
+    note: "쉬운 주간보고 메뉴 — 한 화면에 질문 하나, 큰 글씨·큰 버튼, 다음만 누르면 저장. 로그인 화면에 이 서버의 등록 도메인 안내.",
+  },
+  {
+    version: "0.2.1",
+    date: "2026-09-17",
+    note: "표 행이나 카드에서 수정 패널을 열면 그 행 안에 갇히던 문제 수정.",
+  },
   {
     version: "0.2",
     date: "2026-09-17",

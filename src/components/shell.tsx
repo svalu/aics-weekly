@@ -13,6 +13,7 @@ import {
   IconSettings,
   IconLogout,
   IconChevron,
+  IconSpark,
   Logo,
 } from "./icons";
 import type { Member } from "@/lib/types";
@@ -20,6 +21,7 @@ import { APP_VERSION, CHANGELOG } from "@/lib/version";
 
 const NAV = [
   { href: "/", label: "개요" },
+  { href: "/easy", label: "쉬운 작성" },
   { href: "/weekly", label: "주간보고" },
   { href: "/actions", label: "액션" },
   { href: "/deals", label: "파이프라인" },
@@ -29,6 +31,7 @@ const NAV = [
 
 const RAIL = [
   { href: "/", label: "개요", Icon: IconGrid },
+  { href: "/easy", label: "쉬운 작성", Icon: IconSpark },
   { href: "/weekly", label: "주간보고", Icon: IconCalendar },
   { href: "/actions", label: "액션 트래커", Icon: IconTarget },
   { href: "/deals", label: "파이프라인", Icon: IconBriefcase },

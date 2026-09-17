@@ -176,12 +176,19 @@
   to   { background-position: -200% 0; }
 }
 
-.anim-rise   { animation: rise var(--dur) var(--ease-out) both; }
-.anim-fade   { animation: fade var(--dur) var(--ease-out) both; }
-.anim-pop    { animation: pop var(--dur) var(--ease-out) both; }
-.anim-page   { animation: rise var(--dur-slow) var(--ease-out) both; }
+/*
+ * fill-mode 는 backwards 다 (both 아님).
+ * both 로 두면 애니메이션이 끝난 뒤에도 마지막 키프레임의 transform:translateY(0)
+ * 이 계속 붙어 있는데, transform 이 none 이 아니면 그 요소가 position:fixed
+ * 자손의 기준 상자가 된다. 그러면 안에서 연 패널·모달이 카드나 표 행 크기에
+ * 갇혀 버린다. backwards 는 시작 전 상태만 잡아주고 끝나면 깨끗이 놓아준다.
+ */
+.anim-rise   { animation: rise var(--dur) var(--ease-out) backwards; }
+.anim-fade   { animation: fade var(--dur) var(--ease-out) backwards; }
+.anim-pop    { animation: pop var(--dur) var(--ease-out) backwards; }
+.anim-page   { animation: rise var(--dur-slow) var(--ease-out) backwards; }
 
-.stagger > * { animation: rise var(--dur-slow) var(--ease-out) both; }
+.stagger > * { animation: rise var(--dur-slow) var(--ease-out) backwards; }
 .stagger > *:nth-child(1)  { animation-delay: 0ms; }
 .stagger > *:nth-child(2)  { animation-delay: 40ms; }
 .stagger > *:nth-child(3)  { animation-delay: 80ms; }
@@ -200,7 +207,7 @@
 .stagger > *:nth-child(n+16) { animation-delay: 600ms; }
 
 /* 표 행은 간격을 더 촘촘하게 */
-.stagger-rows > tr { animation: rise var(--dur) var(--ease-out) both; }
+.stagger-rows > tr { animation: rise var(--dur) var(--ease-out) backwards; }
 .stagger-rows > tr:nth-child(1)  { animation-delay: 0ms; }
 .stagger-rows > tr:nth-child(2)  { animation-delay: 25ms; }
 .stagger-rows > tr:nth-child(3)  { animation-delay: 50ms; }
@@ -215,7 +222,7 @@
 
 .bar-grow {
   transform-origin: bottom;
-  animation: grow-up var(--dur-slow) var(--ease-out) both;
+  animation: grow-up var(--dur-slow) var(--ease-out) backwards;
 }
 
 .sheet-in       { animation: slide-in-right var(--dur) var(--ease-out) both; }

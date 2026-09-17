@@ -41,6 +41,11 @@ export default async function LoginPage({
     .order("sort_order");
   const members = (data ?? []) as Member[];
 
+  // 이 서버에 실제로 등록된 도메인을 보여준다. 데모에서는 @example.com 이라
+  // 사내 주소를 넣으면 거절되는데, 안내가 없으면 고장난 것처럼 보인다.
+  const domains = [...new Set(members.map((m) => m.email.split("@")[1]).filter(Boolean))];
+  const sample = domains[0] ?? "mz.co.kr";
+
   return (
     <div className="grid min-h-screen place-items-center p-5">
       <div className="anim-pop w-full max-w-[880px] overflow-hidden rounded-[28px] bg-surface shadow-pop md:grid md:grid-cols-[1.05fr_1fr]">
@@ -67,14 +72,28 @@ export default async function LoginPage({
                 autoFocus
                 autoComplete="email"
                 defaultValue={sp.e ?? ""}
-                placeholder="name@mz.co.kr"
+                placeholder={`name@${sample}`}
                 className="field"
               />
+              {domains.length ? (
+                <p className="mt-1.5 text-[11.5px] text-ink-mute">
+                  이 서버에 등록된 주소는{" "}
+                  <b className="font-semibold text-ink-soft">
+                    {domains.map((d) => `@${d}`).join(" · ")}
+                  </b>{" "}
+                  입니다.
+                </p>
+              ) : null}
             </div>
             {sp.e ? (
               <p className="rounded-2xl bg-[#FFE4E4] px-4 py-3 text-[13px] text-danger">
-                <b>{sp.e}</b> 은(는) 등록된 팀원이 아닙니다. 아래 목록에서 본인을
-                고르거나 관리자에게 이메일 등록을 요청하세요.
+                <b>{sp.e}</b> 은(는) 이 서버에 등록되어 있지 않습니다.
+                {domains.length ? (
+                  <>
+                    {" "}여기 등록된 주소는 {domains.map((d) => `@${d}`).join(" · ")} 입니다.
+                  </>
+                ) : null}{" "}
+                오른쪽 목록에서 본인을 고르거나 관리자에게 등록을 요청하세요.
               </p>
             ) : null}
             {sp.off ? (

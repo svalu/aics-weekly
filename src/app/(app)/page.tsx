@@ -203,9 +203,14 @@ export default async function OverviewPage() {
               title="내 할 일"
               sub={`${me.name}님이 지금 신경 쓸 것`}
               right={
-                <Link href={`/weekly/${me.id}`} className="btn-dark px-4 py-2 text-[13px]">
-                  주간보고 쓰기
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link href="/easy" className="btn-brand px-4 py-2 text-[13px]">
+                    쉽게 쓰기
+                  </Link>
+                  <Link href={`/weekly/${me.id}`} className="btn-dark px-4 py-2 text-[13px]">
+                    주간보고 쓰기
+                  </Link>
+                </div>
               }
             />
             <div className="mt-4 grid gap-3 px-6 pb-6 sm:grid-cols-2">
