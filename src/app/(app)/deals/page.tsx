@@ -67,7 +67,7 @@ export default async function DealsPage({
         right={<DealForm />}
       />
 
-      <div className="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="stagger mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
           label="계약완료"
           value={won.length}
@@ -141,7 +141,7 @@ export default async function DealsPage({
           <Empty title="해당하는 딜이 없습니다" hint="필터를 바꿔보세요." />
         </Card>
       ) : (
-        <div className="grid gap-3 lg:grid-cols-2">
+        <div className="stagger grid gap-3 lg:grid-cols-2">
           {list.map((d) => {
             const logs = byDeal.get(d.id) ?? [];
             const latest = logs[0];
@@ -151,7 +151,7 @@ export default async function DealsPage({
                 deal={d}
                 updates={logs}
                 trigger={
-                  <article className="flex w-full cursor-pointer flex-col rounded-card border border-ink-line bg-surface p-5 text-left transition-all hover:shadow-pop">
+                  <article className="liftable flex w-full cursor-pointer flex-col rounded-card border border-ink-line bg-surface p-5 text-left hover:shadow-pop">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { currentMember } from "@/lib/session";
+import { requireMember } from "@/lib/session";
 import { currentWeek, weekLabelShort, addWeeks } from "@/lib/week";
 import type { Member, Project, WeeklyReport } from "@/lib/types";
 import { Avatar, PageHead, Card, Empty, StatusDot } from "@/components/ui";
@@ -16,7 +16,7 @@ export default async function WeeklyPage({
 }) {
   const sp = await searchParams;
   const week = sp.w ?? currentWeek();
-  const me = (await currentMember())!;
+  const me = await requireMember();
   const sb = db();
 
   const [{ data: memberRows }, { data: projectRows }, { data: reportRows }] =
@@ -115,7 +115,7 @@ export default async function WeeklyPage({
           <Empty title="이 파트에 팀원이 없습니다" />
         </Card>
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="stagger grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {shown.map((m) => {
             const rows = byMember.get(m.id) ?? [];
             const hasIssue = rows.some((r) => r.issues.trim());
@@ -126,7 +126,7 @@ export default async function WeeklyPage({
               <Link
                 key={m.id}
                 href={`/weekly/${m.id}?w=${week}`}
-                className={`group flex flex-col rounded-card border bg-surface p-5 transition-all hover:shadow-pop ${
+                className={`liftable group flex flex-col rounded-card border bg-surface p-5 hover:shadow-pop ${
                   isMe ? "border-brand-300 ring-1 ring-brand-200" : "border-ink-line"
                 }`}
               >

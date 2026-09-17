@@ -97,7 +97,7 @@ export default async function ActionsPage({
         right={<ActionForm members={members} />}
       />
 
-      <div className="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="stagger mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
           label="진행중"
           value={open.length}
@@ -189,7 +189,7 @@ export default async function ActionsPage({
                   <th className="px-5 py-3.5" />
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="stagger-rows">
                 {list.map((a) => {
                   const d = daysLeft(a.target_date);
                   const isOpen = OPEN.includes(a.status);

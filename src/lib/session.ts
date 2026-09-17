@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { db } from "./db";
 import type { Member } from "./types";
 
@@ -11,6 +12,17 @@ export async function currentMember(): Promise<Member | null> {
   if (!id) return null;
   const { data } = await db().from("members").select("*").eq("id", id).maybeSingle();
   return (data as Member) ?? null;
+}
+
+/**
+ * 로그인한 사람을 돌려주고, 없으면 로그인으로 보낸다.
+ * layout 과 page 는 병렬로 렌더되므로 layout 의 redirect 만 믿으면
+ * page 쪽이 null 을 만나 크래시 로그를 남긴다. page 에서는 이걸 쓴다.
+ */
+export async function requireMember(): Promise<Member> {
+  const m = await currentMember();
+  if (!m) redirect("/login");
+  return m;
 }
 
 export async function setSession(memberId: string) {

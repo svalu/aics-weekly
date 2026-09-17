@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { currentMember } from "@/lib/session";
+import { requireMember } from "@/lib/session";
 import { carryOver } from "@/lib/actions";
 import { currentWeek, addWeeks, weekLabel, fmtDate } from "@/lib/week";
 import type { Member, Project, WeeklyReport } from "@/lib/types";
@@ -26,7 +26,7 @@ export default async function MemberWeeklyPage({
   const week = sp.w ?? currentWeek();
   const prev = addWeeks(week, -1);
 
-  const me = (await currentMember())!;
+  const me = await requireMember();
   const sb = db();
 
   const [{ data: memberRow }, { data: memberRows }] = await Promise.all([
@@ -140,7 +140,7 @@ export default async function MemberWeeklyPage({
         </form>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
+      <div className="stagger grid gap-4 lg:grid-cols-[1fr_300px]">
         {/* 본문 */}
         <div className="space-y-3">
           {slots.map(({ project }) => {

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { currentMember } from "@/lib/session";
+import { requireMember } from "@/lib/session";
 import {
   currentWeek,
   addWeeks,
@@ -50,7 +50,7 @@ function greeting() {
 }
 
 export default async function OverviewPage() {
-  const me = (await currentMember())!;
+  const me = await requireMember();
   const week = currentWeek();
   const prev = addWeeks(week, -1);
   const weeks = recentWeeks(8);
@@ -153,7 +153,7 @@ export default async function OverviewPage() {
       </div>
 
       {/* KPI */}
-      <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="stagger mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
           label="이번 주 보고"
           value={`${writers.size}/${members.length}`}
@@ -194,7 +194,7 @@ export default async function OverviewPage() {
         />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1.35fr_1fr]">
+      <div className="stagger grid gap-4 xl:grid-cols-[1.35fr_1fr]">
         {/* ── 왼쪽 ── */}
         <div className="space-y-4">
           {/* 내 할 일 */}
@@ -264,10 +264,13 @@ export default async function OverviewPage() {
                       </span>
                       <div className="relative flex w-full flex-1 items-end overflow-hidden rounded-lg bg-canvas">
                         <div
-                          className={`w-full rounded-lg ${
+                          className={`bar-grow w-full rounded-lg ${
                             now ? "bg-brand-500" : "bg-ink"
                           }`}
-                          style={{ height: `${Math.max(h, 2)}%` }}
+                          style={{
+                            height: `${Math.max(h, 2)}%`,
+                            animationDelay: `${weeks.indexOf(w) * 45}ms`,
+                          }}
                         />
                       </div>
                       <span
@@ -340,8 +343,11 @@ export default async function OverviewPage() {
                       </span>
                       <div className="relative flex w-full flex-1 items-end overflow-hidden rounded-lg bg-canvas">
                         <div
-                          className="flex w-full flex-col justify-end overflow-hidden rounded-lg"
-                          style={{ height: `${Math.max(h, 2)}%` }}
+                          className="bar-grow flex w-full flex-col justify-end overflow-hidden rounded-lg"
+                          style={{
+                            height: `${Math.max(h, 2)}%`,
+                            animationDelay: `${weeks.indexOf(w) * 45 + 200}ms`,
+                          }}
                         >
                           {nn > 0 ? (
                             <div

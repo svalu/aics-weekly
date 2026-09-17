@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { currentMember } from "@/lib/session";
+import { requireMember } from "@/lib/session";
 import { currentWeek, weekLabel, fmtDateShort } from "@/lib/week";
 import type { Meeting, Member } from "@/lib/types";
 import { Avatar, PageHead, Card, Empty, StatusDot, Stat } from "@/components/ui";
@@ -25,7 +25,7 @@ export default async function MeetingsPage({
   const sp = await searchParams;
   const week = sp.w ?? currentWeek();
   const showAll = sp.all === "1";
-  const me = (await currentMember())!;
+  const me = await requireMember();
   const sb = db();
 
   const [{ data: meetingRows }, { data: memberRows }] = await Promise.all([
@@ -72,7 +72,7 @@ export default async function MeetingsPage({
         }
       />
 
-      <div className="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="stagger mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
           label="미팅"
           value={scope.length}
@@ -184,7 +184,7 @@ export default async function MeetingsPage({
                   <th className="px-5 py-3.5" />
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="stagger-rows">
                 {list.map((m) => (
                   <tr
                     key={m.id}

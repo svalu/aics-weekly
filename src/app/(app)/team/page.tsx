@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { currentMember } from "@/lib/session";
+import { requireMember } from "@/lib/session";
 import { fmtDate } from "@/lib/week";
 import type { Member, Project } from "@/lib/types";
 import { Avatar, PageHead, Card, CardHead, Empty } from "@/components/ui";
@@ -8,7 +8,7 @@ import { MemberForm, ProjectForm } from "@/components/team-forms";
 export const dynamic = "force-dynamic";
 
 export default async function TeamPage() {
-  const me = (await currentMember())!;
+  const me = await requireMember();
   const sb = db();
 
   const [{ data: memberRows }, { data: projectRows }, { data: linkRows }, { data: rules }] =
@@ -61,7 +61,7 @@ export default async function TeamPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="stagger grid gap-4 lg:grid-cols-2">
         {/* 팀원 */}
         <Card className="overflow-hidden">
           <CardHead title="팀원" sub="이메일이 곧 로그인 계정" />

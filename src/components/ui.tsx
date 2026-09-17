@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { CountUp } from "./count-up";
 
 /* ── 아바타 ──────────────────────────────────────────── */
 const AVATAR_TONES = [
@@ -91,9 +92,9 @@ export function Stat({
 }) {
   const body = (
     <div
-      className={`flex h-full flex-col justify-between rounded-card p-5 transition-shadow ${
+      className={`flex h-full flex-col justify-between rounded-card p-5 ${
         accent ? "bg-brand-500 text-white" : "bg-surface shadow-card"
-      } ${href ? "hover:shadow-pop" : ""}`}
+      } ${href ? "liftable hover:shadow-pop" : ""}`}
     >
       <div className="flex items-start justify-between gap-3">
         <span
@@ -119,7 +120,7 @@ export function Stat({
             accent ? "text-white" : "text-ink"
           }`}
         >
-          {value}
+          {typeof value === "number" ? <CountUp value={value} /> : value}
         </div>
         <div className="mt-2.5 flex items-center gap-2">
           {delta ? (

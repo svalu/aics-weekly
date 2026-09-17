@@ -9,13 +9,22 @@
 
 난수 시드를 고정해서 몇 번을 돌려도 같은 결과가 나온다.
 """
-import io, os, random
+import io, os, random, uuid
 from datetime import date, datetime, timedelta
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "supabase", "seed.demo.sql")
 
 rnd = random.Random(20260917)
+
+# 모든 행의 id 를 이름/순번에서 결정적으로 만든다.
+# 서버리스처럼 인스턴스마다 DB 를 새로 띄우는 환경에서도 팀원 · 프로젝트 id 가
+# 항상 같아야 로그인 쿠키와 /weekly/<id> 링크가 인스턴스를 넘어서도 살아 있다.
+_NS = uuid.UUID("6f2c1d4e-9b7a-4e3c-8f1d-0a1c50000de0")
+
+
+def uid(*key):
+    return str(uuid.uuid5(_NS, "|".join(str(k) for k in key)))
 
 # ── 팀원 (이름만 실제, 이메일은 example.com) ──────────────
 TEAM = [
@@ -263,8 +272,9 @@ def main():
     # 팀원
     W("-- ---------- 팀원 ----------")
     for i, (name, part, role, admin) in enumerate(TEAM):
-        W("insert into members (email, name, part, role, is_admin, sort_order) values "
-          "({}, {}, {}, {}, {}, {}) on conflict (email) do nothing;".format(
+        W("insert into members (id, email, name, part, role, is_admin, sort_order) values "
+          "({}, {}, {}, {}, {}, {}, {}) on conflict (email) do nothing;".format(
+              q(uid("member", name)),
               q(ROMAN[name] + "@example.com"), q(name), q(part), q(role),
               q(admin), (i + 1) * 10))
     W("")
@@ -279,9 +289,10 @@ def main():
     # 프로젝트
     W("-- ---------- 프로젝트 ----------")
     for i, (name, kind, owner, staff, sd, ed) in enumerate(PROJECTS):
-        W("insert into projects (name, kind, owner_id, start_date, end_date, sort_order) "
-          "select {}, {}, (select id from members where name = {}), {}, {}, {} "
+        W("insert into projects (id, name, kind, owner_id, start_date, end_date, sort_order) "
+          "select {}, {}, {}, (select id from members where name = {}), {}, {}, {} "
           "where not exists (select 1 from projects where name = {});".format(
+              q(uid("project", name)),
               q(name), q(kind), q(owner), q(sd), q(ed), (i + 1) * 10, q(name)))
     W("")
     W("-- ---------- 투입 인력 ----------")
@@ -305,10 +316,11 @@ def main():
                 nw = fill(rnd.choice(NEXT_WEEK), wk)
                 iss = rnd.choice(ISSUES)
                 n_reports += 1
-                W("insert into weekly_reports (member_id, project_id, week_start, "
-                  "this_week, next_week, issues) select m.id, "
+                W("insert into weekly_reports (id, member_id, project_id, week_start, "
+                  "this_week, next_week, issues) select {}, m.id, "
                   "(select id from projects where name = {}), {}, {}, {}, {} "
                   "from members m where m.name = {};".format(
+                      q(uid("report", person, pname, wk)),
                       q(pname), q(wk), q(tw), q(nw), q(iss), q(person)))
     # 프로젝트에 안 묶이는 업무
     for person in ["오대성", "이현행", "최창현"]:
@@ -316,9 +328,10 @@ def main():
             if rnd.random() < 0.3:
                 continue
             n_reports += 1
-            W("insert into weekly_reports (member_id, project_id, week_start, "
-              "this_week, next_week, issues) select m.id, null, {}, {}, {}, {} "
+            W("insert into weekly_reports (id, member_id, project_id, week_start, "
+              "this_week, next_week, issues) select {}, m.id, null, {}, {}, {}, {} "
               "from members m where m.name = {};".format(
+                  q(uid("report", person, "-", wk)),
                   q(wk), q(fill(rnd.choice(THIS_WEEK[None]), wk)),
                   q(fill(rnd.choice(NEXT_WEEK), wk)), q(rnd.choice(ISSUES)), q(person)))
     W("")
@@ -350,9 +363,10 @@ def main():
             pu = (pu.replace("{m}", str(a.month)).replace("{d}", str(a.day))
                     .replace("{m2}", str(b.month)).replace("{d2}", str(b.day)))
         n_actions += 1
-        W("insert into action_items (seq, category, customer, title, owner_id, status, "
+        W("insert into action_items (id, seq, category, customer, title, owner_id, status, "
           "progress_update, open_date, target_date, close_date, remark) values "
-          "({}, {}, {}, {}, (select id from members where name = {}), {}, {}, {}, {}, {}, {});".format(
+          "({}, {}, {}, {}, {}, (select id from members where name = {}), {}, {}, {}, {}, {}, {});".format(
+              q(uid("action", seq)),
               seq, q(rnd.choice(["Sales"] * 6 + ["Tech"] * 3 + ["ALL"])),
               q(rnd.choice(COMPANIES + ["Internal", None])),
               q(rnd.choice(ACTION_TITLES)), q(rnd.choice(owners)), q(status),
@@ -373,10 +387,11 @@ def main():
         elif rnd.random() < 0.3:
             amount = "견적 산출 전 정보 수집 단계"
         n_deals += 1
-        W("with dl as (insert into deals (seq, category, stage, name, customer, lead, "
+        deal_id = uid("deal", company)
+        W("insert into deals (id, seq, category, stage, name, customer, lead, "
           "sales_aws, sales_mzc, period, amount, seats, remark) values "
-          "({}, 'Sales', {}, {}, {}, {}, {}, {}, {}, {}, {}, '') returning id)".format(
-              seq, q(stage), q(rnd.choice(DEAL_NAMES)), q(company),
+          "({}, {}, 'Sales', {}, {}, {}, {}, {}, {}, {}, {}, {}, '');".format(
+              q(deal_id), seq, q(stage), q(rnd.choice(DEAL_NAMES)), q(company),
               q(rnd.choice(leads)),
               q(rnd.choice(CONTACTS) if rnd.random() < 0.4 else ""),
               q(rnd.choice(CONTACTS) if rnd.random() < 0.6 else ""),
@@ -387,18 +402,21 @@ def main():
             ld = cur - timedelta(days=rnd.randint(7, 80) - k * 5)
             logs.append((ld, rnd.choice(DEAL_UPDATE_BODIES)))
         logs.sort()
-        W("insert into deal_updates (deal_id, log_date, body) values\n  " +
-          ",\n  ".join("((select id from dl), {}, {})".format(q(d), q(b))
-                       for d, b in logs) + ";")
+        W("insert into deal_updates (id, deal_id, log_date, body) values\n  " +
+          ",\n  ".join("({}, {}, {}, {})".format(
+              q(uid("deal_update", company, k)), q(deal_id), q(d), q(b))
+                       for k, (d, b) in enumerate(logs)) + ";")
     # 내부 업무
     for seq, name in enumerate(["오퍼링 자료 정비", "콜드콜 방안 수립", "파트너 채널 정리"], start=1):
         n_deals += 1
-        W("with dl as (insert into deals (seq, category, stage, name, customer, lead, "
+        deal_id = uid("deal", "internal", name)
+        W("insert into deals (id, seq, category, stage, name, customer, lead, "
           "sales_aws, sales_mzc, period, amount, seats, remark) values "
-          "({}, '내부업무', '진행중', {}, null, {}, '', '', '', '', '', '') returning id)".format(
-              seq, q(name), q(", ".join(leads))))
-        W("insert into deal_updates (deal_id, log_date, body) values "
-          "((select id from dl), {}, {});".format(
+          "({}, {}, '내부업무', '진행중', {}, null, {}, '', '', '', '', '', '');".format(
+              q(deal_id), seq, q(name), q(", ".join(leads))))
+        W("insert into deal_updates (id, deal_id, log_date, body) values "
+          "({}, {}, {}, {});".format(
+              q(uid("deal_update", "internal", name)), q(deal_id),
               q(cur - timedelta(days=rnd.randint(5, 30))),
               q("- 1차 초안 공유\n : 다음 주 리뷰 예정")))
     W("")
@@ -420,9 +438,10 @@ def main():
             actual = planned if done == "Y" and rnd.random() < 0.7 else (
                 planned + timedelta(days=rnd.randint(1, 6)) if done == "Y" else None)
             n_meet += 1
-            W("insert into meetings (seq, owner_id, week_start, kind, customer, contact, "
+            W("insert into meetings (id, seq, owner_id, week_start, kind, customer, contact, "
               "planned_date, purpose, done, actual_date, companions, notes) values "
-              "({}, (select id from members where name = {}), {}, {}, {}, {}, {}, {}, {}, {}, {}, {});".format(
+              "({}, {}, (select id from members where name = {}), {}, {}, {}, {}, {}, {}, {}, {}, {}, {});".format(
+                  q(uid("meeting", seq)),
                   seq, q(owner), q(wk), q(kind), q(rnd.choice(COMPANIES)),
                   q(rnd.choice(CONTACTS) if rnd.random() < 0.5 else ""),
                   q(planned), q(rnd.choice(MEETING_PURPOSES)), q(done), q(actual),

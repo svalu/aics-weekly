@@ -43,7 +43,7 @@ export default async function LoginPage({
 
   return (
     <div className="grid min-h-screen place-items-center p-5">
-      <div className="w-full max-w-[880px] overflow-hidden rounded-[28px] bg-surface shadow-pop md:grid md:grid-cols-[1.05fr_1fr]">
+      <div className="anim-pop w-full max-w-[880px] overflow-hidden rounded-[28px] bg-surface shadow-pop md:grid md:grid-cols-[1.05fr_1fr]">
         {/* 왼쪽: 로그인 */}
         <div className="p-8 sm:p-10">
           <Logo size={40} />
@@ -102,13 +102,13 @@ export default async function LoginPage({
               실행해주세요.
             </p>
           ) : (
-            <div className="-mx-2 max-h-[420px] space-y-0.5 overflow-y-auto pr-1">
+            <div className="stagger -mx-2 max-h-[420px] space-y-0.5 overflow-y-auto pr-1">
               {members.map((m) => (
                 <form key={m.id} action={signIn}>
                   <input type="hidden" name="email" value={m.email} />
                   <button
                     type="submit"
-                    className="flex w-full items-center gap-3 rounded-2xl px-2 py-2 text-left transition-colors hover:bg-surface"
+                    className="pressable flex w-full items-center gap-3 rounded-2xl px-2 py-2 text-left hover:bg-surface"
                   >
                     <Avatar name={m.name} size={32} />
                     <span className="min-w-0 flex-1">
