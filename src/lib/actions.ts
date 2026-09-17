@@ -248,6 +248,43 @@ export async function deleteMeeting(fd: FormData) {
   revalidatePath("/");
 }
 
+/* ══════════ 베타 피드백 ══════════ */
+
+export async function sendFeedback(fd: FormData) {
+  const m = await me();
+  const body = str(fd, "body");
+  if (!body) return;
+  await db().from("feedback").insert({
+    member_id: m.id,
+    kind: str(fd, "kind") || "불편",
+    body,
+    page: orNull(fd, "page"),
+    version: orNull(fd, "version"),
+  });
+  revalidatePath("/feedback");
+}
+
+export async function setFeedbackStatus(fd: FormData) {
+  const m = await me();
+  if (!m.is_admin) throw new Error("관리자만 상태를 바꿀 수 있습니다.");
+  const id = str(fd, "id");
+  const status = str(fd, "status");
+  if (!id || !status) return;
+  await db().from("feedback").update({ status }).eq("id", id);
+  revalidatePath("/feedback");
+}
+
+export async function deleteFeedback(fd: FormData) {
+  const m = await me();
+  const id = str(fd, "id");
+  if (!id) return;
+  // 본인 것이거나 관리자만 지울 수 있다
+  let q = db().from("feedback").delete().eq("id", id);
+  if (!m.is_admin) q = q.eq("member_id", m.id);
+  await q;
+  revalidatePath("/feedback");
+}
+
 /* ══════════ 팀 / 프로젝트 ══════════ */
 
 export async function saveMember(fd: FormData) {

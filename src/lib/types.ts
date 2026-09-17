@@ -86,6 +86,20 @@ export type Meeting = {
   notes: string;
 };
 
+export type Feedback = {
+  id: string;
+  member_id: string | null;
+  kind: string;
+  body: string;
+  page: string | null;
+  version: string | null;
+  status: string;
+  created_at: string;
+};
+
+export const FEEDBACK_KINDS = ["버그", "불편", "아이디어"] as const;
+export const FEEDBACK_STATUSES = ["새 의견", "확인함", "반영함"] as const;
+
 export const ACTION_STATUSES = ["10.대기", "20.진행중", "50.Close", "99.Drop"] as const;
 export const DEAL_STAGES = [
   "진행중",

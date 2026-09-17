@@ -17,7 +17,8 @@ import {
   Logo,
 } from "./icons";
 import type { Member } from "@/lib/types";
-import { APP_VERSION, CHANGELOG } from "@/lib/version";
+import { APP_VERSION, CHANGELOG, IS_BETA } from "@/lib/version";
+import { FeedbackButton } from "./feedback";
 
 const NAV = [
   { href: "/", label: "개요" },
@@ -263,15 +264,20 @@ function VersionBadge() {
         </div>
       ) : null}
 
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        title={`v${APP_VERSION} · ${latest?.note ?? ""}`}
-        className="pressable pointer-events-auto rounded-pill bg-ink/70 px-2.5 py-1 text-[11px] font-semibold
-                   tabular-nums text-white/80 backdrop-blur hover:bg-ink hover:text-white"
-      >
-        v{APP_VERSION}
-      </button>
+      <div className="flex items-center gap-2">
+        {/* 베타 동안만. 1.0 이 되면 IS_BETA 가 꺼져 같이 사라진다 */}
+        {IS_BETA ? <FeedbackButton /> : null}
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          title={`v${APP_VERSION} · ${latest?.note ?? ""}`}
+          className="pressable pointer-events-auto rounded-pill bg-ink/70 px-2.5 py-1 text-[11px] font-semibold
+                     tabular-nums text-white/80 backdrop-blur hover:bg-ink hover:text-white"
+        >
+          v{APP_VERSION}
+          {IS_BETA ? <span className="ml-1 text-white/60">베타</span> : null}
+        </button>
+      </div>
     </div>
   );
 }

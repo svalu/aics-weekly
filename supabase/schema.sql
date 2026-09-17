@@ -133,6 +133,20 @@ create table if not exists ground_rules (
   body       text not null
 );
 
+-- ---------- 베타 피드백 ----------
+-- 앱 하단 피드백 버튼으로 들어오는 의견. 1.0 이후엔 버튼이 사라지지만 기록은 남긴다.
+create table if not exists feedback (
+  id          uuid primary key default gen_random_uuid(),
+  member_id   uuid references members(id) on delete set null,
+  kind        text not null default '불편',     -- 버그 / 불편 / 아이디어
+  body        text not null,
+  page        text,                             -- 남길 때 보고 있던 화면
+  version     text,                             -- 그때 앱 버전
+  status      text not null default '새 의견',  -- 새 의견 / 확인함 / 반영함
+  created_at  timestamptz not null default now()
+);
+create index if not exists feedback_created_idx on feedback (created_at desc);
+
 -- ---------- updated_at 자동 갱신 ----------
 create or replace function touch_updated_at() returns trigger as $$
 begin
@@ -156,7 +170,8 @@ do $$
 declare t text;
 begin
   foreach t in array array['members','projects','project_members','weekly_reports',
-                           'action_items','deals','deal_updates','meetings','ground_rules'] loop
+                           'action_items','deals','deal_updates','meetings','ground_rules',
+                           'feedback'] loop
     execute format('alter table %I enable row level security', t);
   end loop;
 end $$;

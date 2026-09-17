@@ -43,26 +43,30 @@ async function boot(): Promise<PGlite> {
   const pg = dir ? new PG(dir) : new PG();
   await pg.waitReady;
 
-  // 디렉터리가 있어도 앞선 시도가 중간에 깨졌을 수 있으니 테이블 유무로 판단한다
-  const probe = await pg.query<{ t: string | null }>(
-    "select to_regclass('public.members')::text as t"
-  );
-  if (probe.rows[0]?.t) return pg;
-
-  // seed.sql(실제 데이터)이 있으면 그걸, 없으면 seed.demo.sql(가짜 데이터)을 쓴다.
   const root = path.join(process.cwd(), "supabase");
-  const seed = process.env.LOCAL_DB_SEED
-    ?? (fs.existsSync(path.join(root, "seed.sql")) ? "seed.sql" : "seed.demo.sql");
-
-  for (const file of ["schema.sql", seed]) {
+  const apply = async (file: string) => {
     const p = path.join(root, file);
     if (!fs.existsSync(p)) {
       console.warn(`[local-db] ${file} 을 찾지 못했습니다: ${p}`);
-      continue;
+      return;
     }
     await pg.exec(fs.readFileSync(p, "utf8"));
     console.log(`[local-db] ${file} 적용 완료 (${dir ? dir : "메모리"})`);
-  }
+  };
+
+  // 스키마는 매번 적용한다. 전부 "if not exists" 라 이미 있으면 그냥 지나가고,
+  // 새 테이블(예: feedback)이 추가되면 기존 .localdb 에도 자연히 생긴다.
+  await apply("schema.sql");
+
+  // 시드는 비어 있을 때만. 디렉터리가 있어도 앞선 시도가 중간에 깨졌을 수 있으니
+  // 디렉터리 존재가 아니라 members 행 유무로 판단한다.
+  const probe = await pg.query<{ n: number }>("select count(*)::int as n from members");
+  if ((probe.rows[0]?.n ?? 0) > 0) return pg;
+
+  // seed.sql(실제 데이터)이 있으면 그걸, 없으면 seed.demo.sql(가짜 데이터)을 쓴다.
+  const seed = process.env.LOCAL_DB_SEED
+    ?? (fs.existsSync(path.join(root, "seed.sql")) ? "seed.sql" : "seed.demo.sql");
+  await apply(seed);
   return pg;
 }
 

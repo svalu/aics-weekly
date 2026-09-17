@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireMember } from "@/lib/session";
 import { fmtDate } from "@/lib/week";
@@ -47,7 +48,17 @@ export default async function TeamPage() {
         <div className="mb-4 rounded-2xl bg-canvas px-5 py-4 text-[13px] text-ink-mute">
           읽기 전용입니다. 바꾸려면 관리자에게 요청하세요.
         </div>
-      ) : null}
+      ) : (
+        <Link
+          href="/feedback"
+          className="mb-4 flex items-center justify-between rounded-2xl bg-canvas px-5 py-4 text-[13px] text-ink-soft transition-colors hover:bg-ink-line/60"
+        >
+          <span>
+            <b className="font-bold">베타 피드백 모아 보기</b> — 팀원들이 하단 버튼으로 남긴 의견
+          </span>
+          <span className="font-semibold text-ink-mute">열기 →</span>
+        </Link>
+      )}
 
       {me.is_admin && guessed.length > 0 ? (
         <div className="mb-4 rounded-card border border-brand-200 bg-brand-50 px-5 py-4">
