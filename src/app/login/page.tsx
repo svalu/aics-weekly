@@ -41,10 +41,10 @@ export default async function LoginPage({
     .order("sort_order");
   const members = (data ?? []) as Member[];
 
-  // 이 서버에 실제로 등록된 도메인을 보여준다. 데모에서는 @example.com 이라
-  // 사내 주소를 넣으면 거절되는데, 안내가 없으면 고장난 것처럼 보인다.
-  const domains = [...new Set(members.map((m) => m.email.split("@")[1]).filter(Boolean))];
-  const sample = domains[0] ?? "mz.co.kr";
+  // 로그인은 이름으로 받는다. 데모 서버에는 @example.com 주소만 있어서
+  // 이메일을 물어봐야 아무도 자기 주소로는 들어올 수 없기 때문이다.
+  // (서버는 이메일도 그대로 받으므로, 실제 주소를 등록하면 바로 쓸 수 있다.)
+  const sample = members[0]?.name ?? "홍길동";
 
   return (
     <div className="grid min-h-screen place-items-center p-5">
@@ -56,13 +56,13 @@ export default async function LoginPage({
             AICS Weekly
           </h1>
           <p className="mt-2 text-[15px] text-ink-mute">
-            이름이나 회사 이메일만 넣으면 바로 들어갑니다. 비밀번호 없어요.
+            이름만 넣으면 바로 들어갑니다. 비밀번호 없어요.
           </p>
 
           <form action={signIn} className="mt-7 space-y-3">
             <div>
               <label className="label" htmlFor="email">
-                이메일 또는 이름
+                이름
               </label>
               <input
                 id="email"
@@ -70,33 +70,16 @@ export default async function LoginPage({
                 type="text"
                 required
                 autoFocus
-                autoComplete="username"
+                autoComplete="name"
                 defaultValue={sp.e ?? ""}
-                placeholder={`홍길동  또는  name@${sample}`}
+                placeholder={sample}
                 className="field"
               />
-              {domains.length ? (
-                <p className="mt-1.5 text-[11.5px] text-ink-mute">
-                  이 서버에 등록된 주소는{" "}
-                  <b className="font-semibold text-ink-soft">
-                    {domains.map((d) => `@${d}`).join(" · ")}
-                  </b>{" "}
-                  입니다.
-                </p>
-              ) : null}
             </div>
             {sp.e ? (
               <p className="rounded-2xl bg-[#FFE4E4] px-4 py-3 text-[13px] text-danger">
-                <b>{sp.e}</b> 은(는) 이 서버에서 찾지 못했습니다.
-                {sp.e.includes("@") && domains.length ? (
-                  <>
-                    {" "}여기 등록된 주소는 {domains.map((d) => `@${d}`).join(" · ")} 입니다.
-                    이름으로 넣어 보세요.
-                  </>
-                ) : (
-                  <> 이름이 같은 사람이 둘 이상이면 이메일로 넣어 주세요.</>
-                )}{" "}
-                오른쪽 목록에서 본인을 고르는 게 가장 빠릅니다.
+                <b>{sp.e}</b> 은(는) 이 서버에서 찾지 못했습니다. 오른쪽 목록에서
+                본인을 고르는 게 가장 빠릅니다.
               </p>
             ) : null}
             {sp.off ? (
