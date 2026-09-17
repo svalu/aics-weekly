@@ -94,7 +94,7 @@ export default async function LoginPage({
         </div>
 
         {/* 오른쪽: 빠른 선택 */}
-        <div className="border-t border-ink-line bg-canvas p-8 sm:p-10 md:border-l md:border-t-0">
+        <div className="border-t border-ink-line bg-paper p-8 sm:p-10 md:border-l md:border-t-0">
           <p className="label">팀원 바로 선택</p>
           {members.length === 0 ? (
             <p className="text-[13px] text-ink-mute">

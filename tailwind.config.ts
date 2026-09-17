@@ -12,6 +12,7 @@ export default {
           line: "#E8E6E1",
         },
         canvas: "#EFEDE8",
+        paper: "#FFFEF8",
         surface: "#FFFFFF",
         brand: {
           50: "#FFF1EB",
