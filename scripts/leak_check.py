@@ -17,12 +17,14 @@ import openpyxl
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 XLSX = os.path.join(ROOT, "doc", "AI Communication Service 업무진행(Weekly).xlsx")
 
-# 팀원 이름은 공개하기로 한 것이라 검사에서 제외한다
-TEAM = {
-    "강경표", "민경윤", "이민우", "이진수", "류해원", "이기원", "전병수",
-    "이현행", "오대성", "최창현", "김성우", "정택수", "이상묵", "정종호",
-    "방희태", "장유석", "김진규", "구창현", "최진용", "이예원",
-}
+# 팀원 이름도 이제는 공개하지 않는다(데모는 전부 지어낸 사람).
+# roster.local.json 이 있으면 그 이름들도 "나오면 안 되는 것" 으로 함께 검사한다.
+_ROSTER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "roster.local.json")
+TEAM: set[str] = set()
+if os.path.exists(_ROSTER):
+    import json
+    _r = json.load(io.open(_ROSTER, encoding="utf-8"))
+    TEAM = set(_r.get("order", [])) | set(_r.get("org", {}).keys())
 # 일반 명사·머리글자라 고객사 식별에 쓸 수 없는 것들
 STOP = {
     "구분", "고객명", "고객사", "고객 담당자", "담당", "담당자", "진행", "완료",
@@ -50,7 +52,7 @@ def collect_secrets():
 
     def add(s):
         s = clean(s)
-        if not s or s in STOP or s in TEAM:
+        if not s or s in STOP:
             return
         if len(s) < 2 or len(s) > 40:
             return
@@ -76,6 +78,8 @@ def collect_secrets():
             for piece in re.split(r"\n", clean(r[10])):
                 add(piece)
 
+    # 실제 팀원 이름도 저장소에 있으면 안 된다
+    out |= TEAM
     return {s for s in out if s}
 
 

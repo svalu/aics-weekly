@@ -1,0 +1,26 @@
+{
+  "order": [
+    "홍길동",
+    "김철수"
+  ],
+  "org": {
+    "홍길동": [
+      "Sales",
+      "리더"
+    ],
+    "김철수": [
+      "AICC",
+      "PM"
+    ]
+  },
+  "admins": [
+    "홍길동"
+  ],
+  "roman": {
+    "홍길동": "hong.gildong",
+    "김철수": "kim.cheolsu"
+  },
+  "emails": {
+    "홍길동": "hong.gildong@example.com"
+  }
+}

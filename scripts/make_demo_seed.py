@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-공개 저장소용 데모 시드를 만든다.
+포트폴리오용 데모 시드를 만든다.
 
-팀원 이름만 실제이고, 고객사·담당자·금액·미팅 내용·액션·주간보고 본문은
-전부 지어낸 것이다. 실제 영업 데이터는 이 파일에 들어가지 않는다.
+팀원 이름 · 고객사 · 담당자 · 금액 · 미팅 내용 · 액션 · 주간보고 본문까지
+전부 지어낸 것이다. 실제 사람이나 회사와는 아무 관계가 없다.
 
   python scripts/make_demo_seed.py   →  supabase/seed.demo.sql
 
@@ -26,36 +26,38 @@ _NS = uuid.UUID("6f2c1d4e-9b7a-4e3c-8f1d-0a1c50000de0")
 def uid(*key):
     return str(uuid.uuid5(_NS, "|".join(str(k) for k in key)))
 
-# ── 팀원 (이름만 실제, 이메일은 example.com) ──────────────
+# ── 팀원 (전부 지어낸 사람) ────────────────────────────────
+# 실제 팀원 이름은 여기에 넣지 않는다. 포트폴리오로 공개하는 저장소라
+# 이름 · 고객사 · 금액 · 본문 전부 가짜여야 한다.
 TEAM = [
-    ("강경표", None, "최고 리더", True),
-    ("민경윤", "Sales", "Biz 리더", True),
-    ("이민우", "AICC", "솔루션 리더", True),
-    ("이진수", "Sales", "Sales", False),
-    ("류해원", "Sales", "PreSales", False),
-    ("이기원", "AICC", "PM", True),
-    ("전병수", "AICC", "SA", False),
-    ("이현행", "AICC", "SA", False),
-    ("오대성", "AICC", "SA", False),
-    ("최창현", "AICC", "SA", False),
-    ("김성우", "Development", "개발", False),
-    ("정택수", "Development", "개발", False),
-    ("이상묵", "Development", "개발", False),
-    ("정종호", "Development", "개발", False),
-    ("방희태", "Development", "기획", False),
-    ("장유석", "Development", "디자인", True),
-    ("김진규", None, None, False),
-    ("구창현", None, None, False),
-    ("최진용", None, None, False),
+    ("강민준", None, "최고 리더", True),
+    ("서지우", "Sales", "Biz 리더", True),
+    ("박하윤", "AICC", "솔루션 리더", True),
+    ("정도현", "Sales", "Sales", False),
+    ("최서아", "Sales", "PreSales", False),
+    ("윤건우", "AICC", "PM", True),
+    ("임채린", "AICC", "SA", False),
+    ("오시우", "AICC", "SA", False),
+    ("한예린", "AICC", "SA", False),
+    ("신태현", "AICC", "SA", False),
+    ("배수아", "Development", "개발", False),
+    ("문지호", "Development", "개발", False),
+    ("조은결", "Development", "개발", False),
+    ("권나윤", "Development", "개발", False),
+    ("황도윤", "Development", "기획", False),
+    ("안소율", "Development", "디자인", True),
+    ("남준서", None, None, False),
+    ("유하람", None, None, False),
+    ("고아인", None, None, False),
 ]
 ROMAN = {
-    "강경표": "kang.kyungpyo", "민경윤": "min.kyungyoon", "이민우": "lee.minwoo",
-    "이진수": "lee.jinsoo", "류해원": "ryu.haewon",
-    "이기원": "lee.kiwon", "전병수": "jeon.byungsoo", "이현행": "lee.hyunhaeng",
-    "오대성": "oh.daesung", "최창현": "choi.changhyun",
-    "김성우": "kim.sungwoo", "정택수": "jung.taeksoo", "이상묵": "lee.sangmook",
-    "정종호": "jung.jongho", "방희태": "bang.heetae", "장유석": "jang.yuseok",
-    "김진규": "kim.jingyu", "구창현": "koo.changhyun", "최진용": "choi.jinyong",
+    "강민준": "kang.minjun", "서지우": "seo.jiwoo", "박하윤": "park.hayoon",
+    "정도현": "jung.dohyun", "최서아": "choi.seoa",
+    "윤건우": "yoon.gunwoo", "임채린": "im.chaerin", "오시우": "oh.siwoo",
+    "한예린": "han.yerin", "신태현": "shin.taehyun",
+    "배수아": "bae.sua", "문지호": "moon.jiho", "조은결": "jo.eungyeol",
+    "권나윤": "kwon.nayoon", "황도윤": "hwang.doyoon", "안소율": "ahn.soyul",
+    "남준서": "nam.junseo", "유하람": "yoo.haram", "고아인": "go.ain",
 }
 
 # ── 지어낸 고객사 ─────────────────────────────────────────
@@ -69,38 +71,34 @@ COMPANIES = [
 ]
 COMPANIES = [c.replace("物流", "물류") for c in COMPANIES]
 
-PARTNERS = ["아람소프트", "새롬정보", "이음테크", "마루정보통신", "너울테크"]
-CLOUD = ["AWS", "클라우드파트너"]
-
 # ── 지어낸 담당자 ─────────────────────────────────────────
 CONTACTS = [
     "김하늘", "이서준", "박지우", "최민재", "정예린", "강도윤", "조서윤",
     "윤지호", "임채원", "한수아", "오시현", "신다온", "배준영", "문가람",
-    "서愛", "홍윤слав",
+    "서다율", "홍윤재",
 ]
-CONTACTS = [c for c in CONTACTS if all("가" <= ch <= "힣" for ch in c)]
 
 # ── 지어낸 프로젝트 ───────────────────────────────────────
 PROJECTS = [
-    ("Relay Console 개발 P1-2", "프로젝트", "이기원",
-     ["김성우", "이상묵", "방희태", "장유석"], date(2026, 7, 6), date(2026, 12, 31)),
-    ("한빛생명 장기 TM 시스템 고도화 분석/설계 사업", "프로젝트", "이민우",
-     ["이민우"], date(2026, 7, 13), date(2026, 11, 30)),
-    ("나래물류 Data Platform 장애대응 포탈 구축", "프로젝트", "정택수",
-     ["정택수", "정종호"], date(2026, 7, 13), date(2026, 10, 30)),
-    ("해든쇼핑 AICC 유지보수", "유지보수", "전병수",
-     ["전병수"], date(2026, 8, 10), date(2026, 10, 9)),
-    ("고객서비스 포털 및 컨택센터 운영 관리(GCC)", "유지보수", "장유석",
-     ["장유석", "이상묵", "김성우", "이기원"], date(2026, 4, 1), date(2026, 12, 31)),
-    ("정다운은행 상담챗봇", "유지보수", "김성우",
-     ["김성우"], date(2025, 9, 1), date(2026, 8, 31)),
-    ("큰들체육회 상담챗봇", "유지보수", "김성우", ["김성우"], None, None),
-    ("초록마트 Relay Console 소개", "Demo", "이진수",
-     ["김성우", "최창현", "오대성"], None, None),
-    ("AICC Hands-on Workshop", "행사", "민경윤",
-     ["류해원", "이진수", "전병수", "이현행", "오대성", "최창현"], None, None),
-    ("Cloud Contact Center Competency", "문서작성", "방희태",
-     ["전병수", "이현행", "오대성", "최창현"], None, None),
+    ("Relay Console 개발 P1-2", "프로젝트", "윤건우",
+     ["배수아", "조은결", "황도윤", "안소율"], date(2026, 7, 6), date(2026, 12, 31)),
+    ("한빛생명 장기 TM 시스템 고도화 분석/설계 사업", "프로젝트", "박하윤",
+     ["박하윤"], date(2026, 7, 13), date(2026, 11, 30)),
+    ("나래물류 Data Platform 장애대응 포탈 구축", "프로젝트", "문지호",
+     ["문지호", "권나윤"], date(2026, 7, 13), date(2026, 10, 30)),
+    ("해든쇼핑 AICC 유지보수", "유지보수", "임채린",
+     ["임채린"], date(2026, 8, 10), date(2026, 10, 9)),
+    ("고객서비스 포털 및 컨택센터 운영 관리(GCC)", "유지보수", "안소율",
+     ["안소율", "조은결", "배수아", "윤건우"], date(2026, 4, 1), date(2026, 12, 31)),
+    ("정다운은행 상담챗봇", "유지보수", "배수아",
+     ["배수아"], date(2025, 9, 1), date(2026, 8, 31)),
+    ("큰들체육회 상담챗봇", "유지보수", "배수아", ["배수아"], None, None),
+    ("초록마트 Relay Console 소개", "Demo", "정도현",
+     ["배수아", "신태현", "한예린"], None, None),
+    ("AICC Hands-on Workshop", "행사", "서지우",
+     ["최서아", "정도현", "임채린", "오시우", "한예린", "신태현"], None, None),
+    ("Cloud Contact Center Competency", "문서작성", "황도윤",
+     ["임채린", "오시우", "한예린", "신태현"], None, None),
 ]
 
 GROUND_RULES = [
@@ -323,7 +321,7 @@ def main():
                       q(uid("report", person, pname, wk)),
                       q(pname), q(wk), q(tw), q(nw), q(iss), q(person)))
     # 프로젝트에 안 묶이는 업무
-    for person in ["오대성", "이현행", "최창현"]:
+    for person in ["한예린", "오시우", "신태현"]:
         for wk in weeks:
             if rnd.random() < 0.3:
                 continue
@@ -375,7 +373,7 @@ def main():
 
     # 파이프라인
     W("-- ---------- Sales 파이프라인 ----------")
-    leads = ["민경윤", "이진수", "류해원"]
+    leads = ["서지우", "정도현", "최서아"]
     n_deals = 0
     picked = rnd.sample(COMPANIES, 18)
     for seq, company in enumerate(picked, start=1):
@@ -445,7 +443,7 @@ def main():
                   seq, q(owner), q(wk), q(kind), q(rnd.choice(COMPANIES)),
                   q(rnd.choice(CONTACTS) if rnd.random() < 0.5 else ""),
                   q(planned), q(rnd.choice(MEETING_PURPOSES)), q(done), q(actual),
-                  q(rnd.choice(["", "", "전병수", "류해원", "이진수, 전병수"])),
+                  q(rnd.choice(["", "", "임채린", "최서아", "정도현, 임채린"])),
                   q(rnd.choice(MEETING_NOTES) if done == "Y" else "")))
     W("")
     W("commit;")
@@ -453,7 +451,7 @@ def main():
 
     io.open(OUT, "w", encoding="utf-8").write("\n".join(L) + "\n")
     print("생성:", OUT)
-    print("  팀원        %d (이름만 실제)" % len(TEAM))
+    print("  팀원        %d (전부 지어낸 사람)" % len(TEAM))
     print("  프로젝트    %d" % len(PROJECTS))
     print("  주간보고    %d" % n_reports)
     print("  액션아이템  %d" % n_actions)

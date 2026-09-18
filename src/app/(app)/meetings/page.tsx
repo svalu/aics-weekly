@@ -72,7 +72,7 @@ export default async function MeetingsPage({
         }
       />
 
-      <div className="stagger mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="stagger mb-5 grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">
         <Stat
           label="미팅"
           value={scope.length}
@@ -170,7 +170,80 @@ export default async function MeetingsPage({
             hint="오른쪽 위 '미팅 추가' 로 남겨보세요."
           />
         ) : (
-          <div className="overflow-x-auto">
+          <>
+            {/* 휴대폰: 표 대신 카드 */}
+            <ul className="stagger divide-y divide-ink-line/60 md:hidden">
+              {list.map((m) => (
+                <li key={m.id} className="px-4 py-4">
+                  <div className="flex items-start gap-2">
+                    <span
+                      className={`chip shrink-0 ${
+                        m.kind === "Net New"
+                          ? "bg-brand-50 text-brand-700"
+                          : "bg-canvas text-ink-mute"
+                      }`}
+                    >
+                      {m.kind}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[14px] font-bold">
+                        {m.customer}
+                      </span>
+                      {m.contact ? (
+                        <span className="block text-[11.5px] text-ink-mute">
+                          {m.contact}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className="shrink-0 text-right">
+                      <StatusDot tone={doneTone(m.done)}>{doneLabel(m.done)}</StatusDot>
+                      <span className="mt-0.5 block text-[11.5px] tabular-nums text-ink-mute">
+                        {fmtDateShort(m.actual_date ?? m.planned_date)}
+                      </span>
+                    </span>
+                  </div>
+
+                  {m.purpose ? (
+                    <p className="mt-2 text-[12.5px] leading-snug text-ink-soft">
+                      {m.purpose}
+                    </p>
+                  ) : null}
+                  {m.notes ? (
+                    <p className="mt-1.5 whitespace-pre-wrap text-[12px] leading-snug text-ink-mute">
+                      {m.notes}
+                    </p>
+                  ) : null}
+
+                  <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+                    {m.owner_id ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Avatar name={nameOf.get(m.owner_id) ?? "?"} size={22} />
+                        <span className="text-[12.5px]">{nameOf.get(m.owner_id)}</span>
+                      </span>
+                    ) : null}
+                    {m.companions ? (
+                      <span className="text-[11.5px] text-ink-mute">
+                        동행 {m.companions}
+                      </span>
+                    ) : null}
+                    <span className="ml-auto">
+                      <MeetingForm
+                        members={members}
+                        meeting={m}
+                        trigger={
+                          <span className="pressable cursor-pointer rounded-pill bg-canvas px-3.5 py-2 text-[12.5px] font-semibold text-ink-soft">
+                            수정
+                          </span>
+                        }
+                      />
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            {/* 태블릿 이상: 표 그대로 */}
+            <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[980px] text-left">
               <thead>
                 <tr className="border-b border-ink-line text-[12px] font-semibold text-ink-mute">
@@ -258,7 +331,8 @@ export default async function MeetingsPage({
                 ))}
               </tbody>
             </table>
-          </div>
+            </div>
+          </>
         )}
       </Card>
     </>

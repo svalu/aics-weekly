@@ -41,10 +41,10 @@ export default async function LoginPage({
     .order("sort_order");
   const members = (data ?? []) as Member[];
 
-  // 로그인은 이름으로 받는다. 데모 서버에는 @example.com 주소만 있어서
-  // 이메일을 물어봐야 아무도 자기 주소로는 들어올 수 없기 때문이다.
-  // (서버는 이메일도 그대로 받으므로, 실제 주소를 등록하면 바로 쓸 수 있다.)
-  const sample = members[0]?.name ?? "홍길동";
+  // 이름과 이메일 둘 다 받는다(findByLogin 이 알아서 구분한다).
+  // 데모 계정은 오른쪽 목록에 다 보이므로 어느 쪽으로든 들어올 수 있다.
+  const sample = members[0];
+  const domains = [...new Set(members.map((m) => m.email.split("@")[1]).filter(Boolean))];
 
   return (
     <div className="grid min-h-screen place-items-center p-5">
@@ -56,13 +56,13 @@ export default async function LoginPage({
             AICS Weekly
           </h1>
           <p className="mt-2 text-[15px] text-ink-mute">
-            이름만 넣으면 바로 들어갑니다. 비밀번호 없어요.
+            이름이나 이메일만 넣으면 바로 들어갑니다. 비밀번호 없어요.
           </p>
 
           <form action={signIn} className="mt-7 space-y-3">
             <div>
               <label className="label" htmlFor="email">
-                이름
+                이름 또는 이메일
               </label>
               <input
                 id="email"
@@ -70,16 +70,24 @@ export default async function LoginPage({
                 type="text"
                 required
                 autoFocus
-                autoComplete="name"
+                autoComplete="username"
                 defaultValue={sp.e ?? ""}
-                placeholder={sample}
+                placeholder={sample ? `${sample.name} 또는 ${sample.email}` : "홍길동"}
                 className="field"
               />
+              {domains.length ? (
+                <p className="mt-1.5 text-[11.5px] leading-relaxed text-ink-mute">
+                  데모 계정입니다. 주소는{" "}
+                  <b className="font-semibold text-ink-soft">
+                    {domains.map((d) => `@${d}`).join(" · ")}
+                  </b>
+                  . 아래 목록에서 골라도 됩니다.
+                </p>
+              ) : null}
             </div>
             {sp.e ? (
               <p className="rounded-2xl bg-[#FFE4E4] px-4 py-3 text-[13px] text-danger">
-                <b>{sp.e}</b> 은(는) 이 서버에서 찾지 못했습니다. 오른쪽 목록에서
-                본인을 고르는 게 가장 빠릅니다.
+                <b>{sp.e}</b> 은(는) 이 서버에서 찾지 못했습니다. 목록에서 본인을 고르는 게 가장 빠릅니다.
               </p>
             ) : null}
             {sp.off ? (

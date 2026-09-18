@@ -95,7 +95,7 @@ export default async function MemberWeeklyPage({
       />
 
       {/* 사람 이동 */}
-      <div className="mb-5 flex items-center gap-2 overflow-x-auto pb-1">
+      <div className="no-scrollbar mb-5 flex items-center gap-2 overflow-x-auto pb-1">
         {roster.map((m) => (
           <Link
             key={m.id}
@@ -141,8 +141,8 @@ export default async function MemberWeeklyPage({
       ) : null}
 
       <div className="stagger grid gap-4 lg:grid-cols-[1fr_300px]">
-        {/* 본문 */}
-        <div className="space-y-3">
+        {/* 본문 — min-w-0 이 없으면 긴 프로젝트명이 격자 칸을 넓혀 버린다 */}
+        <div className="min-w-0 space-y-3">
           {slots.map(({ project }) => {
             const row = find(thisWeek, project?.id ?? null);
             const lastRow = find(lastWeek, project?.id ?? null);

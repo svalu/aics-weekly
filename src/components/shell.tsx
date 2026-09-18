@@ -164,7 +164,8 @@ export function Shell({ me, children }: { me: Member; children: ReactNode }) {
             </div>
           </header>
 
-          <main className="px-4 py-6 sm:px-6 sm:py-8">{children}</main>
+          {/* pb-20: 오른쪽 아래 고정 버튼(피드백 · 버전)이 마지막 줄을 가리지 않게 */}
+          <main className="px-4 pb-20 pt-6 sm:px-6 sm:pb-12 sm:pt-8">{children}</main>
         </div>
       </div>
 
@@ -208,7 +209,7 @@ function TopNav({ pathname }: { pathname: string }) {
   return (
     <nav
       ref={navRef}
-      className="relative order-3 -mx-1 flex w-full items-center gap-0.5 overflow-x-auto px-1 sm:order-2 sm:mx-0 sm:w-auto sm:flex-1 sm:justify-center sm:px-0"
+      className="no-scrollbar relative order-3 -mx-1 flex w-full items-center gap-0.5 overflow-x-auto px-1 sm:order-2 sm:mx-0 sm:w-auto sm:flex-1 sm:justify-center sm:px-0"
     >
       {pill ? (
         <span

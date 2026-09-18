@@ -16,47 +16,27 @@ XLSX = os.path.join(ROOT, "doc", "AI Communication Service 업무진행(Weekly).
 OUT = os.path.join(ROOT, "supabase", "seed.sql")
 YEAR = 2026
 
-# ── 이름 → 로그인 이메일 ────────────────────────────────────
-# 실제 주소는 저장소에 넣지 않는다. scripts/emails.local.json 에
-#   { "홍길동": "hong@example.com", ... }
-# 형태로 두면 여기서 읽어간다(이 파일은 .gitignore 대상).
-# 없는 사람은 ROMAN 으로 추측하고 seed.sql 에 TODO 로 표시한다.
-_EMAIL_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                           "emails.local.json")
-EMAIL = {}
-if os.path.exists(_EMAIL_FILE):
-    EMAIL = json.load(io.open(_EMAIL_FILE, encoding="utf-8"))
-ROMAN = {
-    "강경표": "kang.kyungpyo", "민경윤": "min.kyungyoon", "이민우": "lee.minwoo",
-    "이진수": "lee.jinsoo", "류해원": "ryu.haewon",
-    "이기원": "lee.kiwon", "전병수": "jeon.byungsoo", "이현행": "lee.hyunhaeng",
-    "오대성": "oh.daesung", "최창현": "choi.changhyun",
-    "김성우": "kim.sungwoo", "정택수": "jung.taeksoo", "이상묵": "lee.sangmook",
-    "정종호": "jung.jongho", "방희태": "bang.heetae", "장유석": "jang.yuseok",
-    "김진규": "kim.jingyu", "구창현": "koo.changhyun", "최진용": "choi.jinyong",
-    "이예원": "lee.yewon",
-}
-# 조직도 (시트27 + 리더 체계)
-ORG = {
-    "강경표": (None, "최고 리더"),
-    "민경윤": ("Sales", "Biz 리더"),
-    "이민우": ("AICC", "솔루션 리더"),
-    "이진수": ("Sales", "Sales"), "류해원": ("Sales", "PreSales"),
-    "이기원": ("AICC", "PM"),
-    "전병수": ("AICC", "SA"), "이현행": ("AICC", "SA"),
-    "오대성": ("AICC", "SA"), "최창현": ("AICC", "SA"),
-    "김성우": ("Development", "개발"), "정택수": ("Development", "개발"),
-    "이상묵": ("Development", "개발"), "정종호": ("Development", "개발"),
-    "방희태": ("Development", "기획"), "장유석": ("Development", "디자인"),
-    # 파트 미정 — 앱의 팀 설정 화면에서 지정한다
-    "김진규": (None, None), "구창현": (None, None), "최진용": (None, None),
-}
-ADMINS = {"강경표", "민경윤", "이민우", "이기원", "장유석"}
-ORDER = ["강경표", "민경윤", "이민우",
-         "이진수", "류해원",
-         "이기원", "전병수", "이현행", "오대성", "최창현",
-         "김성우", "정택수", "이상묵", "정종호", "방희태", "장유석",
-         "김진규", "구창현", "최진용"]
+# ── 팀 명단 ─────────────────────────────────────────────────
+# 실제 사람 이름과 주소는 저장소에 넣지 않는다.
+# scripts/roster.local.json (.gitignore 대상) 에 아래 형태로 두면 읽어간다:
+#
+#   {
+#     "order":  ["홍길동", "김철수"],
+#     "org":    { "홍길동": ["Sales", "리더"], "김철수": ["AICC", "PM"] },
+#     "admins": ["홍길동"],
+#     "roman":  { "홍길동": "hong.gildong" },
+#     "emails": { "홍길동": "hong@example.com" }
+#   }
+#
+# 파일이 없으면 엑셀의 Owner 칸에서 이름을 모아 쓰고, 파트 · 역할은 비워 둔다.
+_LOCAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "roster.local.json")
+_R = json.load(io.open(_LOCAL, encoding="utf-8")) if os.path.exists(_LOCAL) else {}
+
+EMAIL = _R.get("emails", {})
+ROMAN = _R.get("roman", {})
+ORG = {k: tuple(v) for k, v in _R.get("org", {}).items()}
+ADMINS = set(_R.get("admins", []))
+ORDER = list(_R.get("order", []))
 
 
 # ── 유틸 ────────────────────────────────────────────────────
@@ -173,10 +153,33 @@ def parse_project_cell(text):
             "kind": kind, "start": sd, "end": ed}
 
 
+def collect_names(wb):
+    """roster.local.json 이 없을 때, 엑셀 Owner 칸에서 이름을 모은다."""
+    seen = []
+    for sheet, cols in [("Action Tracker", (5,)), ("Sales Activity", (2,))]:
+        if sheet not in wb.sheetnames:
+            continue
+        for r in wb[sheet].iter_rows(values_only=True):
+            for c in cols:
+                if c >= len(r):
+                    continue
+                n = clean(r[c])
+                if (2 <= len(n) <= 4 and n not in ("Owner", "담당", "담당자")
+                        and all("가" <= ch <= "힣" for ch in n)
+                        and n not in seen):
+                    seen.append(n)
+    return seen
+
+
 def main():
     wb = openpyxl.load_workbook(XLSX, data_only=True)
     lines = []
     W = lines.append
+
+    global ORDER
+    if not ORDER:
+        ORDER = collect_names(wb)
+        print("roster.local.json 이 없어 엑셀에서 이름 %d명을 모았습니다." % len(ORDER))
 
     W("-- ============================================================")
     W("--  AICS Weekly · 시드 데이터 (자동 생성 · scripts/extract.py)")

@@ -24,5 +24,5 @@ doc/
 # 엑셀에서 뽑은 실제 시드
 supabase/seed.sql
 
-# 실제 이메일 주소 매핑
-scripts/emails.local.json
+# 실제 팀 명단 · 이메일
+scripts/roster.local.json

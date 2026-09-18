@@ -143,17 +143,17 @@ export default async function OverviewPage() {
   return (
     <>
       {/* 인사 */}
-      <div className="mb-7">
-        <h1 className="text-[34px] font-extrabold leading-tight tracking-[-0.025em]">
+      <div className="mb-6 sm:mb-7">
+        <h1 className="text-[25px] font-extrabold leading-tight tracking-[-0.025em] sm:text-[34px]">
           {greeting()}, {me.name}님
         </h1>
-        <p className="mt-1 text-[15px] text-ink-mute">
+        <p className="mt-1 text-[13.5px] text-ink-mute sm:text-[15px]">
           {dayLabel} · {weekLabel(week)}
         </p>
       </div>
 
-      {/* KPI */}
-      <div className="stagger mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {/* KPI — 휴대폰에서는 2열로 묶어 한 눈에 들어오게 한다 */}
+      <div className="stagger mb-4 grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">
         <Stat
           label="이번 주 보고"
           value={`${writers.size}/${members.length}`}

@@ -92,13 +92,13 @@ export function Stat({
 }) {
   const body = (
     <div
-      className={`flex h-full flex-col justify-between rounded-card p-5 ${
+      className={`flex h-full flex-col justify-between rounded-card p-4 sm:p-5 ${
         accent ? "bg-brand-500 text-white" : "bg-surface shadow-card"
       } ${href ? "liftable hover:shadow-pop" : ""}`}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-2">
         <span
-          className={`text-[13px] font-semibold ${
+          className={`text-[12.5px] font-semibold sm:text-[13px] ${
             accent ? "text-white/90" : "text-ink-soft"
           }`}
         >
@@ -106,7 +106,7 @@ export function Stat({
         </span>
         {icon ? (
           <span
-            className={`grid h-8 w-8 place-items-center rounded-xl ${
+            className={`grid h-7 w-7 shrink-0 place-items-center rounded-xl sm:h-8 sm:w-8 ${
               accent ? "bg-white/20 text-white" : "bg-canvas text-ink-soft"
             }`}
           >
@@ -114,15 +114,15 @@ export function Stat({
           </span>
         ) : null}
       </div>
-      <div className="mt-6">
+      <div className="mt-5 sm:mt-6">
         <div
-          className={`text-[30px] font-extrabold leading-none tracking-[-0.02em] ${
+          className={`text-[26px] font-extrabold leading-none tracking-[-0.02em] sm:text-[30px] ${
             accent ? "text-white" : "text-ink"
           }`}
         >
           {typeof value === "number" ? <CountUp value={value} /> : value}
         </div>
-        <div className="mt-2.5 flex items-center gap-2">
+        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 sm:mt-2.5">
           {delta ? (
             <span
               className={`chip ${
@@ -233,14 +233,18 @@ export function PageHead({
   right?: ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 className="text-[34px] font-extrabold leading-tight tracking-[-0.025em]">
+    <div className="mb-5 flex flex-wrap items-end justify-between gap-3 sm:mb-6 sm:gap-4">
+      <div className="min-w-0">
+        <h1 className="text-[25px] font-extrabold leading-tight tracking-[-0.025em] sm:text-[34px]">
           {title}
         </h1>
-        {sub ? <p className="mt-1 text-[15px] text-ink-mute">{sub}</p> : null}
+        {sub ? (
+          <p className="mt-1 text-[13.5px] text-ink-mute sm:text-[15px]">{sub}</p>
+        ) : null}
       </div>
-      {right ? <div className="flex items-center gap-2">{right}</div> : null}
+      {right ? (
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">{right}</div>
+      ) : null}
     </div>
   );
 }

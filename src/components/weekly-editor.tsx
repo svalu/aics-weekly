@@ -282,14 +282,18 @@ export function WeeklyEditor({
   return (
     <div className="rounded-card border border-ink-line bg-surface">
       {/* 머리 */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-ink-line px-4 py-3">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            {projectKind ? (
-              <span className="chip bg-canvas text-ink-mute">{projectKind}</span>
-            ) : null}
-            <h3 className="truncate text-[14px] font-bold">{projectName}</h3>
-          </div>
+      {/* 휴대폰에서는 제목과 탭을 위아래로 쌓는다. 한 줄에 두면 칩이 세로로
+          쪼개지고 프로젝트명이 한두 글자로 잘린다. */}
+      <div className="flex flex-col gap-2 border-b border-ink-line px-4 py-3 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 items-center gap-2 sm:flex-1">
+          {projectKind ? (
+            <span className="chip shrink-0 whitespace-nowrap bg-canvas text-ink-mute">
+              {projectKind}
+            </span>
+          ) : null}
+          {/* min-w-0 이 없으면 flex 항목의 최소 너비가 글자 전체라
+              truncate 가 걸려 있어도 카드를 화면 밖으로 밀어낸다 */}
+          <h3 className="min-w-0 flex-1 truncate text-[14px] font-bold">{projectName}</h3>
         </div>
         <div className="flex items-center gap-1 rounded-pill bg-canvas p-1">
           {SECTIONS.map((s) => (
@@ -297,7 +301,7 @@ export function WeeklyEditor({
               key={s.key}
               type="button"
               onClick={() => setSection(s.key)}
-              className={`pressable relative rounded-pill px-3 py-1.5 text-[12.5px] font-semibold ${
+              className={`pressable relative flex-1 whitespace-nowrap rounded-pill px-3 py-1.5 text-[12.5px] font-semibold sm:flex-none ${
                 section === s.key
                   ? "bg-surface text-ink shadow-sm"
                   : "text-ink-mute hover:text-ink-soft"

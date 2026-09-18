@@ -97,7 +97,7 @@ export default async function ActionsPage({
         right={<ActionForm members={members} />}
       />
 
-      <div className="stagger mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="stagger mb-5 grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">
         <Stat
           label="진행중"
           value={open.length}
@@ -176,7 +176,95 @@ export default async function ActionsPage({
             hint="필터를 바꾸거나 새 액션을 추가해보세요."
           />
         ) : (
-          <div className="overflow-x-auto">
+          <>
+            {/* 휴대폰: 표 대신 카드. 920px 표를 옆으로 밀게 하지 않는다 */}
+            <ul className="stagger divide-y divide-ink-line/60 md:hidden">
+              {list.map((a) => {
+                const d = daysLeft(a.target_date);
+                const isOpen = OPEN.includes(a.status);
+                const late = isOpen && d !== null && d < 0;
+                const soon = isOpen && d !== null && d >= 0 && d <= 3;
+                return (
+                  <li key={a.id} className="px-4 py-4">
+                    <div className="flex items-start gap-2">
+                      <span className="chip shrink-0 bg-canvas text-ink-mute">
+                        {a.category}
+                      </span>
+                      {a.customer ? (
+                        <span className="truncate pt-0.5 text-[12.5px] font-semibold text-ink-soft">
+                          {a.customer}
+                        </span>
+                      ) : null}
+                      <span className="ml-auto shrink-0">
+                        <StatusDot tone={actionTone(a.status)}>
+                          {a.status.replace(/^\d+\./, "")}
+                        </StatusDot>
+                      </span>
+                    </div>
+
+                    <p className="mt-2 text-[14px] font-semibold leading-snug">
+                      {a.title}
+                    </p>
+                    {a.progress_update ? (
+                      <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-ink-mute">
+                        {a.progress_update.split("\n").filter(Boolean).at(-1)}
+                      </p>
+                    ) : null}
+
+                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+                      {a.owner_id ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Avatar name={nameOf.get(a.owner_id) ?? "?"} size={22} />
+                          <span className="text-[12.5px]">{nameOf.get(a.owner_id)}</span>
+                        </span>
+                      ) : (
+                        <span className="text-[12.5px] text-ink-mute">담당 미지정</span>
+                      )}
+                      <span className="text-[12.5px] tabular-nums text-ink-mute">
+                        {fmtDate(a.target_date)}
+                      </span>
+                      {late ? (
+                        <span className="text-[12px] font-bold text-danger">
+                          {Math.abs(d!)}일 지연
+                        </span>
+                      ) : soon ? (
+                        <span className="text-[12px] font-bold text-warn">
+                          {d === 0 ? "오늘 마감" : `${d}일 남음`}
+                        </span>
+                      ) : null}
+
+                      <span className="ml-auto flex items-center gap-1">
+                        {isOpen ? (
+                          <form action={setActionStatus}>
+                            <input type="hidden" name="id" value={a.id} />
+                            <input type="hidden" name="status" value="50.Close" />
+                            <button
+                              type="submit"
+                              className="pressable grid h-9 w-9 place-items-center rounded-full bg-canvas text-ink-mute hover:bg-[#DCF5E7] hover:text-ok"
+                              title="완료 처리"
+                            >
+                              <IconCheck size={16} />
+                            </button>
+                          </form>
+                        ) : null}
+                        <ActionForm
+                          members={members}
+                          item={a}
+                          trigger={
+                            <span className="pressable cursor-pointer rounded-pill bg-canvas px-3.5 py-2 text-[12.5px] font-semibold text-ink-soft">
+                              수정
+                            </span>
+                          }
+                        />
+                      </span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {/* 태블릿 이상: 표 그대로 */}
+            <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[920px] text-left">
               <thead>
                 <tr className="border-b border-ink-line text-[12px] font-semibold text-ink-mute">
@@ -276,7 +364,8 @@ export default async function ActionsPage({
                 })}
               </tbody>
             </table>
-          </div>
+            </div>
+          </>
         )}
       </Card>
     </>

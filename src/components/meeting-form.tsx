@@ -140,7 +140,7 @@ export function MeetingForm({
             <input
               name="companions"
               defaultValue={meeting?.companions ?? ""}
-              placeholder="이진수, 전병수"
+              placeholder="정도현, 임채린"
               className="field"
             />
           </Field>
